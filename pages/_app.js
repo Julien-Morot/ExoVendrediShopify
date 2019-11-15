@@ -1,28 +1,37 @@
-import App from 'next/app';
-import Head from 'next/head';
-import { AppProvider } from '@shopify/polaris';
-import { Provider } from '@shopify/app-bridge-react';
-import '@shopify/polaris/styles.css';
-import translations from '@shopify/polaris/locales/en.json';
-import Cookies from 'js-cookie';
+import ApolloClient from "apollo-boost";
+import { ApolloProvider } from "react-apollo";
+import App, { Container } from "next/app";
+import { AppProvider } from "@shopify/polaris";
+import { Provider } from "@shopify/app-bridge-react";
+import Cookies from "js-cookie";
+import "@shopify/polaris/styles.css";
+import translations from "@shopify/polaris/locales/en.json";
 
-
+const client = new ApolloClient({
+  fetchOptions: {
+    credentials: "include"
+  }
+});
 class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
-    const config = { apiKey: c0fb11b593223bed5e70e1fae7ca9897, shopOrigin: Cookies.get("shopOrigin"), forceRedirect: true };
+    const shopOrigin = Cookies.get("shopOrigin");
     return (
-      <React.Fragment>
-        <Head>
-          <title>Sample App</title>
-          <meta charSet="utf-8" />
-        </Head>
-        <Provider config={config}>
-          <AppProvider i18n={translations}>
-            <Component {...pageProps} />
-          </AppProvider>
-        </Provider>
-      </React.Fragment>
+      <Container>
+        <AppProvider i18n={translations}>
+          <Provider
+            config={{
+              apiKey: API_KEY,
+              shopOrigin: shopOrigin,
+              forceRedirect: true
+            }}
+          >
+            <ApolloProvider client={client}>
+              <Component {...pageProps} />
+            </ApolloProvider>
+          </Provider>
+        </AppProvider>
+      </Container>
     );
   }
 }
