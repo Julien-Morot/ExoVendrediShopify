@@ -9,6 +9,7 @@ import Router from "koa-router";
 import session from "koa-session";
 import * as handlers from "./handlers/index";
 dotenv.config();
+const getSubscriptionUrl = require('./server/getSubscriptionUrl');
 const port = parseInt(process.env.PORT, 10) || 8081;
 const dev = process.env.NODE_ENV !== "production";
 const app = next({
@@ -32,7 +33,7 @@ app.prepare().then(() => {
         //Redirect to shop upon auth
         const { shop, accessToken } = ctx.session;
         ctx.cookies.set('shopOrigin', shop, { httpOnly: false });
-        ctx.redirect("/");
+        await getSubscriptionUrl(ctx, accessToken, shop);
       }
     })
   );
