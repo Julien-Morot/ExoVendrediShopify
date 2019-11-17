@@ -8,6 +8,8 @@ import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import * as handlers from "./handlers/index";
+const Router = require('koa-router');
+const {receiveWebhook, registerWebhook} = require('@shopify/koa-shopify-webhooks');
 dotenv.config();
 const getSubscriptionUrl = require('./server/getSubscriptionUrl');
 const port = parseInt(process.env.PORT, 10) || 8081;
@@ -33,7 +35,18 @@ app.prepare().then(() => {
         //Redirect to shop upon auth
         const { shop, accessToken } = ctx.session;
         ctx.cookies.set('shopOrigin', shop, { httpOnly: false });
-        await getSubscriptionUrl(ctx, accessToken, shop);
+        const registration = await registerWebhook({
+          address: `${HOST}/webhooks/products/create`,
+          topic: 'PRODUCTS_CREATE',
+          accessToken,
+          shop,
+          apiVersion: ApiVersion.October19
+        });
+        if (registration.success) {
+          console.log('Successfully registered webhook!');
+        } else {
+          console.log('Failed to register webhook', registration.result);
+        }
       }
     })
   );
