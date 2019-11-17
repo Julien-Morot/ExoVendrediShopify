@@ -25,7 +25,7 @@ app.prepare().then(() => {
     createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
-      scopes: [SCOPES],
+      scopes: ['read_products', 'write_products'],
 
       async afterAuth(ctx) {
         //Auth token and shop available in session
@@ -41,6 +41,7 @@ app.prepare().then(() => {
       version: ApiVersion.October19
     })
   );
+
   router.get("*", verifyRequest(), async ctx => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
